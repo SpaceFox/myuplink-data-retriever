@@ -17,6 +17,7 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest-client-reactive-jackson'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-resteasy-reactive'
+    implementation 'io.quarkus:quarkus-resteasy-reactive-qute'
     implementation 'io.quarkus:quarkus-scheduler'
 
     implementation 'com.influxdb:influxdb-client-java:7.0.0'
@@ -26,7 +27,7 @@ dependencies {
 }
 
 group 'fr.spacefox'
-version '1.0.0'
+version '2.0.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21

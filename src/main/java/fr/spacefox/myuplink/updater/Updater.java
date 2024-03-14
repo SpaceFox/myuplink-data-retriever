@@ -10,6 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
+import java.time.OffsetDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +25,9 @@ public class Updater {
     private final DevicesResource devicesResource;
     private final InfluxDbRepository repository;
 
+    private Map<Parameter, Value> lastFetchData = new HashMap<>();
+    private OffsetDateTime lastFetchTime;
+
     public Updater(UpdaterConfig config, @RestClient DevicesResource devicesResource, InfluxDbRepository repository) {
         this.config = config;
         this.devicesResource = devicesResource;
@@ -35,6 +40,8 @@ public class Updater {
         final var points =
                 devicesResource.getPoints(config.deviceId(), config.locale().toLanguageTag());
         final var parameters = toParameters(points);
+        lastFetchData = parameters;
+        lastFetchTime = OffsetDateTime.now();
         repository.store(parameters);
         LOG.infof(
                 "Retrieved and stored %d parameters in %f ms",
@@ -48,5 +55,13 @@ public class Updater {
                         Value::from,
                         // Found 2 values for the same parameter in the source feed: only take the first.
                         (first, second) -> first));
+    }
+
+    public Map<Parameter, Value> getLastFetchData() {
+        return lastFetchData;
+    }
+
+    public OffsetDateTime getLastFetchTime() {
+        return lastFetchTime;
     }
 }
