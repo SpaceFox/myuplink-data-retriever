@@ -6,11 +6,9 @@ import io.smallrye.config.WithConverter;
 @ConfigMapping(prefix = "influx-db")
 public interface InfluxDbConfig {
 
-    String url();
+    String host();
 
-    String org();
-
-    String bucket();
+    String database();
 
     @WithConverter(CharArrayConverter.class)
     char[] token();

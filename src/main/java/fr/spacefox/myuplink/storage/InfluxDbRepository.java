@@ -1,21 +1,17 @@
 package fr.spacefox.myuplink.storage;
 
-import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
-import com.influxdb.client.WriteApi;
-import com.influxdb.client.domain.WritePrecision;
-import com.influxdb.client.write.Point;
-import com.influxdb.client.write.events.WriteErrorEvent;
-import com.influxdb.client.write.events.WriteSuccessEvent;
+
+import com.influxdb.v3.client.InfluxDBClient;
+import com.influxdb.v3.client.Point;
+import com.influxdb.v3.client.write.WritePrecision;
 import fr.spacefox.myuplink.updater.model.Parameter;
 import fr.spacefox.myuplink.updater.model.Value;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.logging.Logger;
-
 import java.util.List;
 import java.util.Map;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class InfluxDbRepository {
@@ -23,7 +19,6 @@ public class InfluxDbRepository {
 
     private final InfluxDbConfig config;
     private InfluxDBClient client;
-    private WriteApi writeApi;
 
     public InfluxDbRepository(InfluxDbConfig config) {
         this.config = config;
@@ -31,24 +26,24 @@ public class InfluxDbRepository {
 
     @PostConstruct
     void init() {
-        LOG.debugf("Creating InfluxDB Client %s/%s/%s", config.url(), config.org(), config.bucket());
-        client = InfluxDBClientFactory.create(config.url(), config.token(), config.org(), config.bucket());
-        writeApi = client.makeWriteApi();
-        writeApi.listenEvents(WriteSuccessEvent.class, WriteSuccessEvent::logEvent);
-        writeApi.listenEvents(WriteErrorEvent.class, WriteErrorEvent::logEvent);
-        LOG.infof("InfluxDB Client %s/%s/%s successfully created", config.url(), config.org(), config.bucket());
+        LOG.debugf("Creating InfluxDB Client %s/%s", config.host(), config.database());
+        client = InfluxDBClient.getInstance(config.host(), config.token(), config.database());
+        LOG.infof("InfluxDB Client %s/%s successfully created", config.host(), config.database());
     }
 
     @PreDestroy
     void tearDown() {
-        LOG.debugf("Closing InfluxDB Client %s/%s/%s", config.url(), config.org(), config.bucket());
-        writeApi.close();
-        client.close();
-        LOG.infof("InfluxDB Client %s/%s/%s successfully closed", config.url(), config.org(), config.bucket());
+        LOG.debugf("Closing InfluxDB Client %s/%s", config.host(), config.database());
+        try {
+            client.close();
+            LOG.infof("InfluxDB Client %s/%s/%s successfully closed", config.host(), config.database());
+        } catch (Exception e) {
+            LOG.errorf(e, "Error on closing InfluxDB Client %s/%s/%s: %s", config.host(), config.database(),e.getMessage());
+        }
     }
 
     public void store(Map<Parameter, Value> parameters) {
-        writeApi.writePoints(toPoints(parameters));
+        client.writePoints(toPoints(parameters));
     }
 
     private List<Point> toPoints(Map<Parameter, Value> parameters) {
@@ -59,13 +54,13 @@ public class InfluxDbRepository {
         final var parameter = entry.getKey();
         final var value = entry.getValue();
         final var point = Point.measurement(parameter.id())
-                .addTag("name", parameter.name())
-                .addTag("unit", parameter.unit())
-                .addField("value", value.value())
-                .time(value.time().toEpochSecond(), WritePrecision.S);
+                .setTag("name", parameter.name())
+                .setTag("unit", parameter.unit())
+                .setField("value", value.value())
+                .setTimestamp(value.time().toEpochSecond(), WritePrecision.S);
         if (!parameter.enumValues().isEmpty()) {
             // Use the mapping done by the API in strVal
-            point.addField("enumVal", value.strVal());
+            point.setField("enumVal", value.strVal());
         }
         return point;
     }

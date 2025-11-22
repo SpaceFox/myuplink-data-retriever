@@ -11,6 +11,9 @@ repositories {
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
 
+    implementation enforcedPlatform("com.google.protobuf:protobuf-bom:4.33.1")
+    implementation enforcedPlatform("io.grpc:grpc-bom:1.77.0")
+
     implementation 'io.quarkus:quarkus-oidc-client'
     implementation 'io.quarkus:quarkus-rest-client-oidc-filter'
     implementation 'io.quarkus:quarkus-rest-client'
@@ -20,14 +23,16 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest-qute'
     implementation 'io.quarkus:quarkus-scheduler'
 
-    implementation 'com.influxdb:influxdb-client-java:7.2.0'
+    implementation 'io.netty:netty-transport-classes-epoll'
+
+    implementation 'com.influxdb:influxdb3-java:1.7.0'
 
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
 
-group 'fr.spacefox'
-version '2.0.3'
+group = 'fr.spacefox'
+version = '3.0.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -36,6 +41,7 @@ java {
 
 test {
     systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+    jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED"
 }
 compileJava {
     options.encoding = 'UTF-8'
