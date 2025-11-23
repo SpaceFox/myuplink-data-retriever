@@ -9,8 +9,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +22,7 @@ public class HttpPages {
     private static final List<String> ID_TO_KEEP = List.of(
             "40025", "40026", "49993", "43125", "40014", "40008", "40012", "40017", "40940", "40013", "43081", "41778",
             "43123", "43122", "40022", "40018", "43146", "40019", "50004", "49995", "49994", "43124", "43427", "40033",
-            "40067", "40004", "43140", "43009", "40050", "50005", "43437", "40020");
+            "40067", "40004", "43140", "43009", "40050", "50005", "43437", "40020", "50095");
 
     private final Template index;
     private final Updater updater;
@@ -60,8 +59,8 @@ public class HttpPages {
                 .toList();
     }
 
-    private String toIcon(OffsetDateTime time) {
-        final var now = OffsetDateTime.now();
+    private String toIcon(ZonedDateTime time) {
+        final var now = ZonedDateTime.now();
         if (time.isBefore(now.minusDays(1))) {
             return "❌";
         }

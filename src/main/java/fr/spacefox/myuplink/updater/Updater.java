@@ -7,14 +7,13 @@ import fr.spacefox.myuplink.updater.model.Parameter;
 import fr.spacefox.myuplink.updater.model.Value;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.jboss.logging.Logger;
-
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class Updater {
