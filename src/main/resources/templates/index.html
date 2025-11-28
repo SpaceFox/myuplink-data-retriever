@@ -1,29 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Statut de la pompe à chaleur</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+    </style>
 </head>
 <body>
 <h1>Statut au {updateDate}</h1>
-<table>
-    <thead>
-    <tr>
-        <th>Mesure</th>
-        <th>Valeur</th>
-        <th>Date</th>
-    </tr>
-    </thead>
-    <tbody>
-    {#for measure in measures}
-        <tr>
-        <td>{measure.title}</td>
-        <td><strong>{measure.value}</strong></td>
-        <td>{measure.icon}&nbsp;{measure.formattedTime}</td>
-        </tr>
-    {/for}
-    </tbody>
-</table>
+{#for status in statuses}
+    <h2>{status.title}</h2>
+    <table>
+        <tbody>
+        {#for measure in status.measures}
+            <tr>
+                <td>{measure.title}</td>
+                <td><strong>{measure.value}</strong></td>
+                <td><small>{measure.icon}&nbsp;{measure.formattedTime}</small></td>
+            </tr>
+        {/for}
+        </tbody>
+    </table>
+{/for}
 </body>
 </html>

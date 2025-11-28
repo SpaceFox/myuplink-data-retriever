@@ -6,9 +6,8 @@ import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
 import java.util.List;
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "myuplink")
 @OidcClientFilter

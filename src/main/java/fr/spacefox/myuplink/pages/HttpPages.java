@@ -11,25 +11,23 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Path("/")
 public class HttpPages {
 
-    private static final List<String> ID_TO_KEEP = List.of(
-            "40025", "40026", "49993", "43125", "40014", "40008", "40012", "40017", "40940", "40013", "43081", "41778",
-            "43123", "43122", "40022", "40018", "43146", "40019", "50004", "49995", "49994", "43124", "43427", "40033",
-            "40067", "40004", "43140", "43009", "40050", "50005", "43437", "40020", "50095");
-
+    private final PageConfig pageConfig;
     private final Template index;
     private final Updater updater;
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", Locale.FRANCE);
 
-    public HttpPages(Template index, Updater updater) {
+    public HttpPages(PageConfig pageConfig, Template index, Updater updater) {
+        this.pageConfig = pageConfig;
         this.index = index;
         this.updater = updater;
     }
@@ -40,23 +38,39 @@ public class HttpPages {
         return index.data(
                 "updateDate",
                 dateFormatter.format(updater.getLastFetchTime()),
-                "measures",
-                toMeasures(updater.getLastFetchData()));
+                "statuses",
+                toStatuses(toMeasuresByCodes(updater.getLastFetchData())));
     }
 
-    private List<Measure> toMeasures(Map<Parameter, Value> data) {
-        return data.entrySet().stream()
-                .filter(d -> ID_TO_KEEP.contains(d.getKey().id()))
-                .map(d -> {
-                    final var value = d.getValue();
-                    return new Measure(
-                            d.getKey().name(),
-                            value.strVal(),
-                            toIcon(value.time()),
-                            dateFormatter.format(value.time()));
-                })
-                .sorted(Comparator.comparing(Measure::title))
-                .toList();
+    private Map<String, Measure> toMeasuresByCodes(Map<Parameter, Value> lastFetchData) {
+        return lastFetchData.entrySet().stream()
+                .collect(Collectors.toMap(entry -> entry.getKey().id(), this::toMeasure));
+    }
+
+    private Measure toMeasure(Map.Entry<Parameter, Value> d) {
+        final var key = d.getKey();
+        final var value = d.getValue();
+        return new Measure(
+                key.name(), value.strVal(), toIcon(value.time()), dateFormatter.format(value.time()), key.id());
+    }
+
+    private List<StatusTable> toStatuses(Map<String, Measure> measures) {
+        final var configuredStatuses = pageConfig.statuses().stream()
+                .map(status -> new StatusTable(
+                        status.name(),
+                        status.codes().stream().map(measures::get).toList()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (pageConfig.displayAdditionalStatuses()) {
+            final var configuredIds = pageConfig.statuses().stream()
+                    .flatMap(statusType -> statusType.codes().stream())
+                    .collect(Collectors.toSet());
+            final var additionalCodes = new ArrayList<>(measures.keySet());
+            additionalCodes.removeAll(configuredIds);
+            configuredStatuses.add(new StatusTable(
+                    "Autres mesures",
+                    additionalCodes.stream().map(measures::get).toList()));
+        }
+        return configuredStatuses;
     }
 
     private String toIcon(ZonedDateTime time) {

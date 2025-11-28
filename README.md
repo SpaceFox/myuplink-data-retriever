@@ -9,9 +9,9 @@ https://dev.myuplink.com/apps for this tool to work.
 
 Prerequisites:
 
-- Java 21 (JRE). Native build is untested.
+- Java 25 (JRE). Native build is untested.
 - Credentials for your MyUplink application.
-- Credentials for your InfluxDB bucket.
+- Credentials for your InfluxDB database.
 
 No builds are provided, you have to checkout the projet and build it by yourself (see below).
 

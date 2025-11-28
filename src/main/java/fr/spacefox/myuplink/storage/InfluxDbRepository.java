@@ -1,6 +1,5 @@
 package fr.spacefox.myuplink.storage;
 
-
 import com.influxdb.v3.client.InfluxDBClient;
 import com.influxdb.v3.client.Point;
 import com.influxdb.v3.client.write.WritePrecision;
@@ -38,7 +37,12 @@ public class InfluxDbRepository {
             client.close();
             LOG.infof("InfluxDB Client %s/%s/%s successfully closed", config.host(), config.database());
         } catch (Exception e) {
-            LOG.errorf(e, "Error on closing InfluxDB Client %s/%s/%s: %s", config.host(), config.database(),e.getMessage());
+            LOG.errorf(
+                    e,
+                    "Error on closing InfluxDB Client %s/%s/%s: %s",
+                    config.host(),
+                    config.database(),
+                    e.getMessage());
         }
     }
 

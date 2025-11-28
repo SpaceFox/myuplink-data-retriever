@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'io.quarkus'
+    id 'com.diffplug.spotless' version '8.1.0'
 }
 
 repositories {
@@ -32,11 +33,11 @@ dependencies {
 }
 
 group = 'fr.spacefox'
-version = '3.0.0'
+version = '4.0.0'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 test {
@@ -50,4 +51,9 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+spotless {
+    java {
+        palantirJavaFormat()
+    }
 }

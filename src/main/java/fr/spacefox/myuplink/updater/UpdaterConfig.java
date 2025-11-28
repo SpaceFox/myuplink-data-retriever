@@ -2,7 +2,6 @@ package fr.spacefox.myuplink.updater;
 
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithDefault;
-
 import java.util.Locale;
 
 @ConfigMapping(prefix = "myuplink")
